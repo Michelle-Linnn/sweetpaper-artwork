@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ink Noise · sweetpaper lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/lab.css">
+</head>
+<body>
+  <header class="lab-bar">
+    <a href="../../index.html#labs">← Back to Labs</a>
+    <span class="title">003 Ink Noise</span>
+    <a href="https://wenjielin.com" target="_blank" rel="noopener">wenjielin.com ↗</a>
+  </header>
+  <main class="stage">
+    <canvas id="c"></canvas>
+    <p class="hint">Move to drip ink · Click to change color</p>
+  </main>
+  <script>
+  // Resize the canvas to fit (retina-aware)
+  var c = document.getElementById("c"), ctx = c.getContext("2d"), W, H;
+  function fit() {
+    var r = c.getBoundingClientRect(), d = window.devicePixelRatio || 1;
+    W = r.width; H = r.height; c.width = W * d; c.height = H * d;
+    ctx.setTransform(d, 0, 0, d, 0, 0);
+    if (window.onFit) onFit();
+  }
+  window.addEventListener("resize", fit);
+  </script>
+  <script>
+  // Simple flow field: layered sines stand in for noise; ink drops follow it and fade
+  var inks = ["#2b2522", "#e8837a", "#4d6a91", "#6a8f6a"], ink = 0, drops = [], t = 0;
+  window.onFit = function () { ctx.fillStyle = "#fbf7f0"; ctx.fillRect(0, 0, W, H); };
+
+  function field(x, y) {
+    return Math.sin(x * 0.006 + t * 0.3) * 2 + Math.cos(y * 0.007 - t * 0.2) * 2 + Math.sin((x + y) * 0.003);
+  }
+  function spawn(x, y, n) {
+    for (var i = 0; i < n; i++) {
+      drops.push({ x: x + (Math.random() - .5) * 20, y: y + (Math.random() - .5) * 20, life: 80 + Math.random() * 120, col: inks[ink] });
+    }
+  }
+
+  function step() {
+    t += 0.01;
+    ctx.lineWidth = 1.1;
+    drops.forEach(function (d) {
+      var a = field(d.x, d.y), nx = d.x + Math.cos(a) * 1.4, ny = d.y + Math.sin(a) * 1.4;
+      ctx.strokeStyle = d.col; ctx.globalAlpha = Math.min(d.life / 200, .35);
+      ctx.beginPath(); ctx.moveTo(d.x, d.y); ctx.lineTo(nx, ny); ctx.stroke();
+      d.x = nx; d.y = ny; d.life--;
+    });
+    ctx.globalAlpha = 1;
+    drops = drops.filter(function (d) { return d.life > 0; });
+    requestAnimationFrame(step);
+  }
+
+  c.addEventListener("pointermove", function (e) {
+    var r = c.getBoundingClientRect();
+    spawn(e.clientX - r.left, e.clientY - r.top, 4);
+  });
+  c.addEventListener("click", function () { ink = (ink + 1) % inks.length; });
+  fit();
+  spawn(W / 2, H / 2, 300);
+  step();
+  </script>
+</body>
+</html>

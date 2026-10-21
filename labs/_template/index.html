@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lab Name · sweetpaper lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/lab.css">
+</head>
+<body>
+  <header class="lab-bar">
+    <a href="../../index.html#labs">← Back to Labs</a>
+    <span class="title">000 Lab Name</span>
+    <a href="https://wenjielin.com" target="_blank" rel="noopener">wenjielin.com ↗</a>
+  </header>
+  <main class="stage">
+    <canvas id="c"></canvas>
+    <p class="hint">Write a short how-to hint here</p>
+  </main>
+  <script>
+  // Resize the canvas to fit (retina-aware)
+  var c = document.getElementById("c"), ctx = c.getContext("2d"), W, H;
+  function fit() {
+    var r = c.getBoundingClientRect(), d = window.devicePixelRatio || 1;
+    W = r.width; H = r.height; c.width = W * d; c.height = H * d;
+    ctx.setTransform(d, 0, 0, d, 0, 0);
+    if (window.onFit) onFit();
+  }
+  window.addEventListener("resize", fit);
+  </script>
+  <script>
+  // New lab template:
+  // 1. Duplicate the _template folder and rename it (e.g. labs/my-lab)
+  // 2. Update the title, number and hint above
+  // 3. Add an entry in assets/labs.js with the folder name as id
+  // 4. Write your experiment below (W and H are the canvas size, ctx is the 2D context)
+  window.onFit = function () {
+    ctx.fillStyle = "#f4c7c3";
+    ctx.fillRect(W / 2 - 80, H / 2 - 80, 160, 160);
+  };
+  fit();
+  </script>
+</body>
+</html>

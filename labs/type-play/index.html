@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Type Play · sweetpaper lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/lab.css">
+</head>
+<body>
+  <header class="lab-bar">
+    <a href="../../index.html#labs">← Back to Labs</a>
+    <span class="title">005 Type Play</span>
+    <a href="https://wenjielin.com" target="_blank" rel="noopener">wenjielin.com ↗</a>
+  </header>
+  <main class="stage">
+    <canvas id="c"></canvas>
+    <p class="hint">Move to nudge the letters · Start typing to replace the text</p>
+  </main>
+  <script>
+  // Resize the canvas to fit (retina-aware)
+  var c = document.getElementById("c"), ctx = c.getContext("2d"), W, H;
+  function fit() {
+    var r = c.getBoundingClientRect(), d = window.devicePixelRatio || 1;
+    W = r.width; H = r.height; c.width = W * d; c.height = H * d;
+    ctx.setTransform(d, 0, 0, d, 0, 0);
+    if (window.onFit) onFit();
+  }
+  window.addEventListener("resize", fit);
+  </script>
+  <script>
+  // Each letter is a paper scrap: pushed by the cursor, then springing home
+  var text = "sweetpaper lab", letters = [], mouse = { x: -999, y: -999 }, typing = false;
+
+  function layout() {
+    var size = Math.min(W / (text.length * 0.62 + 1), H * 0.22, 140);
+    ctx.font = "600 " + size + "px Fraunces, 'Noto Serif SC', serif";
+    var total = ctx.measureText(text).width, x = (W - total) / 2, y = H / 2 + size * 0.3;
+    letters = text.split("").map(function (ch) {
+      var w = ctx.measureText(ch).width, L = { ch: ch, hx: x + w / 2, hy: y, x: x + w / 2, y: y, vx: 0, vy: 0, rot: 0, size: size };
+      x += w;
+      return L;
+    });
+  }
+  window.onFit = layout;
+
+  function step() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.textAlign = "center"; ctx.textBaseline = "alphabetic";
+    letters.forEach(function (L, i) {
+      var dx = L.x - mouse.x, dy = L.y - L.size * 0.3 - mouse.y, d = Math.hypot(dx, dy) || 1;
+      if (d < 120) { L.vx += dx / d * 2.2; L.vy += dy / d * 2.2; }
+      L.vx += (L.hx - L.x) * 0.04; L.vy += (L.hy - L.y) * 0.04;
+      L.vx *= 0.86; L.vy *= 0.86;
+      L.x += L.vx; L.y += L.vy;
+      L.rot = L.vx * 0.03;
+      ctx.save(); ctx.translate(L.x, L.y); ctx.rotate(L.rot);
+      ctx.font = "600 " + L.size + "px Fraunces, 'Noto Serif SC', serif";
+      ctx.fillStyle = i % 3 === 1 ? "#e8837a" : "#2b2522";
+      ctx.fillText(L.ch, 0, 0);
+      ctx.restore();
+    });
+    requestAnimationFrame(step);
+  }
+
+  c.addEventListener("pointermove", function (e) {
+    var r = c.getBoundingClientRect(); mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top;
+  });
+  c.addEventListener("pointerleave", function () { mouse.x = mouse.y = -999; });
+  window.addEventListener("keydown", function (e) {
+    if (e.metaKey || e.ctrlKey) return;
+    if (!typing) { text = ""; typing = true; }
+    if (e.key === "Backspace") text = text.slice(0, -1);
+    else if (e.key.length === 1 && text.length < 24) text += e.key;
+    else return;
+    layout();
+  });
+  fit();
+  step();
+  </script>
+</body>
+</html>

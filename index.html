@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>sweetpaper lab</title>
+  <meta name="description" content="The sweetpaper studio lab: visual and interactive experiments across many themes.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+  <header class="nav">
+    <a class="logo" href="./">sweetpaper<span>lab</span></a>
+    <nav>
+      <a href="#labs">Labs</a>
+      <a href="#studio">Studio</a>
+      <a href="#founder">Founder</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <p class="eyebrow">sweetpaper studio · experimental lab</p>
+      <h1>Sweet experiments<br><em>on paper</em></h1>
+      <p class="lead">This is the sweetpaper lab. Each lab explores one small theme: paper, color, type, sound, interaction. It is where we play, fail, and slowly fold ideas into finished work.</p>
+      <a class="btn" href="#labs">Enter the lab ↓</a>
+      <div class="hero-paper" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </div>
+    </section>
+
+    <section id="labs" class="labs">
+      <div class="section-head">
+        <h2>Labs <small id="lab-count"></small></h2>
+        <div class="filters" id="filters" role="tablist" aria-label="Filter by theme"></div>
+      </div>
+      <div class="grid" id="lab-grid"></div>
+    </section>
+
+    <section id="studio" class="studio">
+      <h2>Studio</h2>
+      <div class="studio-cols">
+        <p>sweetpaper is a creative studio that starts from paper. We believe good work often begins as a small, playful experiment.</p>
+        <p>The lab is our open sketchbook. Every experiment runs live in your browser, and each one keeps evolving over time.</p>
+      </div>
+    </section>
+
+    <section id="founder" class="founder">
+      <div class="founder-card">
+        <p class="eyebrow">Founder</p>
+        <h2 id="founder-name">Wenjie Lin</h2>
+        <p>See more of the founder's work and story on the personal site.</p>
+        <a class="btn btn-dark" id="founder-link" href="https://wenjielin.com" target="_blank" rel="noopener">Visit wenjielin.com ↗</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>© <span id="year"></span> sweetpaper studio</span>
+    <a href="https://wenjielin.com" target="_blank" rel="noopener">wenjielin.com</a>
+  </footer>
+
+  <script src="assets/labs.js"></script>
+  <script src="assets/main.js"></script>
+</body>
+</html>

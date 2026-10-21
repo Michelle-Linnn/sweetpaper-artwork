@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paper Fold · sweetpaper lab</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/lab.css">
+</head>
+<body>
+  <header class="lab-bar">
+    <a href="../../index.html#labs">← Back to Labs</a>
+    <span class="title">002 Paper Fold</span>
+    <a href="https://wenjielin.com" target="_blank" rel="noopener">wenjielin.com ↗</a>
+  </header>
+  <main class="stage">
+    <canvas id="c"></canvas>
+    <p class="hint">Click anywhere to fold · Double-click to start over</p>
+  </main>
+  <script>
+  // Resize the canvas to fit (retina-aware)
+  var c = document.getElementById("c"), ctx = c.getContext("2d"), W, H;
+  function fit() {
+    var r = c.getBoundingClientRect(), d = window.devicePixelRatio || 1;
+    W = r.width; H = r.height; c.width = W * d; c.height = H * d;
+    ctx.setTransform(d, 0, 0, d, 0, 0);
+    if (window.onFit) onFit();
+  }
+  window.addEventListener("resize", fit);
+  </script>
+  <script>
+  // Each paper layer is a polygon; a fold mirrors everything on one side of the crease
+  var layers, folds;
+  var tints = ["#fffdf8", "#f4c7c3", "#f7e1a8", "#cfe5cf", "#c9d6e8", "#e3d7ee"];
+
+  function reset() {
+    var s = Math.min(W, H) * 0.6, x = (W - s) / 2, y = (H - s) / 2;
+    layers = [{ pts: [[x, y], [x + s, y], [x + s, y + s], [x, y + s]], depth: 0 }];
+    folds = 0;
+    draw();
+  }
+  window.onFit = reset;
+
+  function side(p, a, n) { return (p[0] - a[0]) * n[0] + (p[1] - a[1]) * n[1]; }
+  function clip(pts, a, n, keep) {
+    var out = [];
+    for (var i = 0; i < pts.length; i++) {
+      var p = pts[i], q = pts[(i + 1) % pts.length];
+      var sp = side(p, a, n) * keep, sq = side(q, a, n) * keep;
+      if (sp >= 0) out.push(p);
+      if ((sp >= 0) !== (sq >= 0)) {
+        var t = sp / (sp - sq);
+        out.push([p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t]);
+      }
+    }
+    return out;
+  }
+  function reflect(p, a, n) {
+    var d = side(p, a, n);
+    return [p[0] - 2 * d * n[0], p[1] - 2 * d * n[1]];
+  }
+
+  function fold(x, y) {
+    var ang = Math.random() * Math.PI, n = [Math.cos(ang), Math.sin(ang)], a = [x, y];
+    var next = [], flipped = [];
+    layers.forEach(function (L) {
+      var keep = clip(L.pts, a, n, 1), move = clip(L.pts, a, n, -1);
+      if (keep.length > 2) next.push({ pts: keep, depth: L.depth });
+      if (move.length > 2) flipped.push({ pts: move.map(function (p) { return reflect(p, a, n); }), depth: L.depth + 1 });
+    });
+    // Flipped layers land on top, in reverse order
+    layers = next.concat(flipped.reverse());
+    folds++;
+    draw();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    layers.forEach(function (L) {
+      ctx.beginPath();
+      L.pts.forEach(function (p, i) { i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); });
+      ctx.closePath();
+      ctx.shadowColor = "rgba(43,37,34,.12)"; ctx.shadowBlur = 12; ctx.shadowOffsetY = 4;
+      ctx.fillStyle = tints[L.depth % tints.length];
+      ctx.fill();
+      ctx.shadowColor = "transparent";
+      ctx.strokeStyle = "rgba(43,37,34,.25)"; ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+    ctx.fillStyle = "#6f6560"; ctx.font = "13px Inter, sans-serif";
+    ctx.fillText("folds: " + folds, 20, 30);
+  }
+
+  c.addEventListener("click", function (e) {
+    var r = c.getBoundingClientRect();
+    fold(e.clientX - r.left, e.clientY - r.top);
+  });
+  c.addEventListener("dblclick", reset);
+  fit();
+  </script>
+</body>
+</html>
